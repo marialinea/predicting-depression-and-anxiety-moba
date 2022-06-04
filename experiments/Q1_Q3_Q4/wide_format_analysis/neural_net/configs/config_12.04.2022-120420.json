@@ -1,0 +1,20 @@
+{
+    "opt": "SGD",
+    "lr": 0.01,
+    "layer_sizes": [
+        1000,
+        1000,
+        10,
+        1000,
+        500,
+        10
+    ],
+    "l2_reg": true,
+    "input_shape": 421,
+    "epochs": 100,
+    "dropout_rate": 0.2,
+    "dropout": false,
+    "batch_size": 32,
+    "activation": "relu",
+    "model_filepath": "./experiments/Q1_Q3_Q4/wide_format_analysis/neural_net/models/models_12.04.2022-120420/model.ckpt"
+}

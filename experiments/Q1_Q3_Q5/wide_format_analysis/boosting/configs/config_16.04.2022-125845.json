@@ -1,0 +1,10 @@
+{
+    "subsample": 0.5,
+    "objective": "reg:squarederror",
+    "n_estimators": 1000,
+    "min_child_weight": 5,
+    "max_depth": 7,
+    "eta": 0.01,
+    "colsample_bytree": 0.3,
+    "Q": "Q4"
+}

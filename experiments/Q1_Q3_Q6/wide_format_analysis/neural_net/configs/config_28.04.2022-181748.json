@@ -1,0 +1,20 @@
+{
+    "opt": "SGD",
+    "lr": 0.001,
+    "layer_sizes": [
+        1000,
+        1000,
+        1000,
+        100,
+        1000,
+        10
+    ],
+    "l2_reg": false,
+    "input_shape": 28,
+    "epochs": 100,
+    "dropout_rate": 0.2,
+    "dropout": false,
+    "batch_size": 64,
+    "activation": "tanh",
+    "model_filepath": "./experiments/Q1_Q3_Q6/wide_format_analysis/neural_net/models/models_28.04.2022-181748-high_corr/model.ckpt"
+}

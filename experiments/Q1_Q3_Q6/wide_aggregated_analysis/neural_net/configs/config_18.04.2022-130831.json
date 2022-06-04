@@ -1,0 +1,17 @@
+{
+    "opt": "Adam",
+    "lr": 0.01,
+    "layer_sizes": [
+        500,
+        500,
+        100
+    ],
+    "l2_reg": false,
+    "input_shape": 17,
+    "epochs": 1000,
+    "dropout_rate": 0.5,
+    "dropout": false,
+    "batch_size": 64,
+    "activation": "relu",
+    "model_filepath": "./experiments/Q1_Q3_Q6/wide_aggregated_analysis/neural_net/models/models_18.04.2022-130831/model.ckpt"
+}

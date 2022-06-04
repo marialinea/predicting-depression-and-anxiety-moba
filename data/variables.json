@@ -1,0 +1,143 @@
+{
+    "Q1": {
+        "scl": [
+            "AA1548",
+            "AA1549",
+            "AA1550",
+            "AA1551",
+            "AA1552"
+        ],
+        "mean_scl_Q1": "mean_scl_Q1",
+        "LTH_of_MD": [
+            "AA1572",
+            "AA1577",
+            "AA1579"
+        ],
+        "LTH_of_MD_agg": "LTH_of_MD_agg",
+        "RSS": [
+            "AA1532",
+            "AA1533",
+            "AA1534",
+            "AA1535",
+            "AA1536",
+            "AA1537",
+            "AA1538",
+            "AA1539",
+            "AA1540",
+            "AA1541"
+        ],
+        "mean_RSS_Q1": "mean_RSS_Q1",
+        "social_support": [
+            "AA1545"
+        ],
+        "social_support_binary": "social_support_binary"
+        
+    },
+    "Q3": {
+        "scl": [
+            "CC1202",
+            "CC1203",
+            "CC1204",
+            "CC1205",
+            "CC1206",
+            "CC1207",
+            "CC1208",
+            "CC1209"
+        ],
+        "mean_scl_Q3": "mean_scl_Q3",
+        "RSS": [
+            "CC1192",
+            "CC1193",
+            "CC1194",
+            "CC1195",
+            "CC1196",
+            "CC1197",
+            "CC1198",
+            "CC1199",
+            "CC1200",
+            "CC1201"
+        ],
+        "mean_RSS_Q3": "mean_RSS_Q3"
+    },
+    "Q4": {
+        "scl": [
+            "DD837",
+            "DD838",
+            "DD839",
+            "DD840",
+            "DD841",
+            "DD842",
+            "DD843",
+            "DD844"
+        ],
+        "EPDS": [
+            "DD827",
+            "DD828",
+            "DD829",
+            "DD830",
+            "DD831",
+            "DD832"
+        ],
+        "mean_scl_Q4": "mean_scl_Q4",
+        "RSS": [
+            "DD784",
+            "DD785",
+            "DD786",
+            "DD787",
+            "DD788",
+            "DD789",
+            "DD790",
+            "DD791",
+            "DD792",
+            "DD793"
+        ],
+        "mean_RSS_Q4": "mean_RSS_Q4"
+    },
+    "Q5": {
+        "scl": [
+            "EE638",
+            "EE639",
+            "EE640",
+            "EE641",
+            "EE642",
+            "EE643",
+            "EE644",
+            "EE645"
+        ],
+        "mean_scl_Q5": "mean_scl_Q5",
+        "RSS": [
+            "EE610",
+            "EE611",
+            "EE612",
+            "EE613",
+            "EE614",
+            "EE615",
+            "EE616",
+            "EE617",
+            "EE618",
+            "EE619"
+        ],
+        "mean_RSS_Q5": "mean_RSS_Q5"
+    },
+    "Q6": {
+        "scl": [
+            "GG514",
+            "GG515",
+            "GG516",
+            "GG517",
+            "GG518",
+            "GG519",
+            "GG520",
+            "GG521"
+        ],
+        "mean_scl_Q6": "mean_scl_Q6",
+        "RSS": [
+            "GG509",
+            "GG510",
+            "GG511",
+            "GG512",
+            "GG513"
+        ],
+        "mean_RSS_Q6": "mean_RSS_Q6"
+    }
+}
