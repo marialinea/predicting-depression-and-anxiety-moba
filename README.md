@@ -31,13 +31,13 @@ Master Thesis Project
 ```
 
 ## Processing Data
----------------------------
+
 In the `scripts` folder, there are scripts for constructing a base dataset from the raw files, and scripts to process results. See README file inside folder to get an overview over all of the scripts.
 
 The `prepare_data.py` scripts will clean, split the data into train/test splits and impute the data.
 
 ## Make Predictions
-----------------------------------------
+
 All of the scripts in the
 
 All of the scripts in the main folder, except `prepare_data.py`, are used to make predictions. The `main_XXX.py` scrips run either a linear regression model (lr), an elastic net (en), a neural network (nn) or a XGBoost model (xgb). The `cross_validater.py` script does not produce useful results for the multiple linear regression model.
