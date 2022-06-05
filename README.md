@@ -1,7 +1,7 @@
 # A machine learning approach to understanding depression and anxiety in new mothers
 ### Predicting symptom levels using population-based registry data from a large Norwegian prospective study
 
-This repository contain all code written to produce the results found in ADD LINK HERE!
+This repository contain all code written to produce the results for my thesis found [here](https://github.com/marialinea/predicting-depression-and-anxiety-moba/blob/main/thesis/Thesis.pdf).
 We investigated the ability of machine learning methods to predict a continuous measure of symptoms of anxiety and depression in new mothers, using data from a large population-representative prospective cohort. The data is not publicly available due to privacy regulations, so all of the folders dedicated to storing the data are empty.
 
 This repository has the following structure
@@ -19,6 +19,7 @@ Master Thesis Project
 |   
 ├── figures
 ├── scripts
+├── thesis
 ├── utils
 |
 ├── cross_validater.py
