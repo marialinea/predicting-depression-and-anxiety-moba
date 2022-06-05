@@ -15,8 +15,7 @@ from .print import print_info
 
 class Cleaner(object):
     """
-    Klasse for å sørge for at alle NaN verdier er korrekt. I mange tilfeller er det NaN verdier som burde
-    vært kodet som "Nei". 
+    The class makes sure that all values in the base dataset are correctly encoded. 
 
     Args:
         dataframe: pandas dataframe, a sub_dataframe with the variables corresponding with the variable_keys
@@ -44,10 +43,10 @@ class Cleaner(object):
         # Total number of variables that have been changed from an illegal value to NaN
         self.total_count = 0
 
-        # Dict containing legal values for the different variables. 
+        # Dict containing legal values for the different variables.
         # If a single number for min/max val, this is valid for all items for that variable.
         # If a list, the length of the list must be equally long as the number of items for that variable.
-        # E. g. there are three birth items. 
+        # E. g. there are three birth items.
 
         self.cleanup_dict = {
             "scl"                 :  {"min": 1, "max": 4},
@@ -116,32 +115,32 @@ class Cleaner(object):
         operators = self.operators
 
         for var in self.variable_keys:
-            
+
             try:
                 # Allowed range of numerical values
                 min_val = self.cleanup_dict[var]["min"]
                 max_val = self.cleanup_dict[var]["max"]
-                
+
 
                 min_max = [min_val, max_val]
 
                 # All items for the specific variable
                 variable_items = self.items[var]
-                
+
 
                 # Identifying the min and max values for the items in the dataframe
                 min_max_var = self.df[variable_items].describe().loc[["min","max"]]
-            
+
                 if all([isinstance(min_val, (int, float)), isinstance(max_val, (int, float))]):
 
                     for i, op in enumerate(operators.keys()):
-                        
-                    
+
+
                         if np.any(operators[op](min_max_var.values[i], min_max[i])):
-            
+
                             # Find columns containing values that are lower/higher than min_val/max_val
                             columns = operators[op](self.df.loc[:,variable_items].describe().loc[op], min_max[i])
-                            
+
 
                             min_col = np.where(columns==True)[0]
 
@@ -153,15 +152,15 @@ class Cleaner(object):
 
 
                 elif all([isinstance(min_val, list), isinstance(max_val, list)]):
-                    
+
                     if len(min_val) != len(max_val):
                         raise ValueError("Different lengths for the minimum and maximum list")
 
                     min_max_var = list(min_max_var.loc["min"].values) + list(min_max_var.loc["max"].values)
                     min_max_list = min_val + max_val
                     min_max_string = ["min" for i in range(len(min_val))] + ["max" for i in range(len(max_val))]
-                    
-            
+
+
                     for i in range(0, len(variable_items), len(min_val)):
                         current_items = variable_items[i:i+len(min_val)]
                         current_items += current_items
@@ -169,10 +168,10 @@ class Cleaner(object):
                                             min_max_var[i+len(variable_items):i+len(variable_items)+len(min_val)]
 
                         for op, var_val, allowed_val, item in zip(min_max_string, current_min_max_var, min_max_list, current_items):
-                            
+
                             if np.any(operators[op](var_val, allowed_val)):
-                
-                    
+
+
                                 col_name = item
 
 
@@ -183,11 +182,11 @@ class Cleaner(object):
                     pass
 
                 # min_max_var = self.df[variable_items].describe().loc[["min","max"]]
-                
+
                 if "special_cleanup" in self.cleanup_dict[var].keys():
-                
+
                     self.cleanup_dict[var]["special_cleanup"](var)
-                
+
 
             except KeyError:
                 raise NotImplementedError(f"No cleaning procedure implemented for {var}")
@@ -212,22 +211,22 @@ class Cleaner(object):
 
     def _set_values_nan(self, variable, columns, extremum="min", ext_val=None):
         """
-        Function that sets specific row-values to NaN if 
+        Function that sets specific row-values to NaN if
         lower/higher than a value in specified columns in a pandas dataframe inplace
 
         Args:
             varaible: variable that the columns belong to. Here columns are single items.
-            columns: list with column names in the dataframe 
+            columns: list with column names in the dataframe
             extremum: string, accepted values: 'min' or 'max'. Defining if finding values higher or lower than the extremum value.
             ext_val: in the case where there are several different allowed extremum values for a variable, can send in the extremum
-                     value manually 
-        
+                     value manually
+
         Returns:
             None, but changes the dataframe inplace and adds the total number of changed values to total_count
         """
 
         count = 0
-        
+
         # If extremum=min, then op is <, if extremum=max, op is >
         op = extremum
 
@@ -244,31 +243,31 @@ class Cleaner(object):
             # self.df.loc[idx[0], idx[1]] = np.nan
 
             # count += len(idx[0])
-            
+
             for col in columns:
 
                 rows = np.where(self.operators[op](self.df.loc[:,col].values, extremum_value) == True)[0]
-                
+
                 count += len(rows)
                 for row in rows:
                     self.df.loc[row,col] = np.nan
-                    
+
 
         elif isinstance(columns, str):
             col = columns
 
             rows = np.where(self.operators[op](self.df.loc[:,col].values, extremum_value) == True)[0]
-                
+
             count += len(rows)
             for row in rows:
-                self.df.loc[row,col] = np.nan 
-                
+                self.df.loc[row,col] = np.nan
+
 
         else:
             print(f"Type {type(columns)} not recognized.")
 
 
-    
+
         self.total_count += count
 
         if self.verbose == 1:
@@ -276,14 +275,14 @@ class Cleaner(object):
             b = "lower" if op == "min" else "higher"
 
             print(f"Identified {count} values {b} than {extremum_value} for {variable}-items. All set to NaN", end="\n")
-            
+
 
 
     def _clean_LTHofMD(self, var):
         """
-        Some special cleanup is required for the LTHofMD items. High number of NaN values in the third item. 
+        Some special cleanup is required for the LTHofMD items. High number of NaN values in the third item.
         This is a binary variable, so here we interpret the NaN values as "No"
-        """           
+        """
 
 
         for Q in self.Q_names:
@@ -293,8 +292,8 @@ class Cleaner(object):
                 if Q == "Q1":
                     # pdb.set_trace()
                     binary_variables = variable_items[:-2] + [variable_items[-1]]
-                    
-                    self._set_values_nan(var, binary_variables, extremum="min", ext_val=1)           
+
+                    self._set_values_nan(var, binary_variables, extremum="min", ext_val=1)
                     self._set_values_nan(var, binary_variables, extremum="max", ext_val=2)
 
 
@@ -307,7 +306,7 @@ class Cleaner(object):
                     self.cleanup_dict[var]["min"] = 0
 
                 elif Q == "Q6":
-                    self._set_values_nan(var, variable_items[:6], extremum="min", ext_val=1)           
+                    self._set_values_nan(var, variable_items[:6], extremum="min", ext_val=1)
                     self._set_values_nan(var, variable_items[:6], extremum="max", ext_val=2)
 
                     self.df[variable_items[:6]] = self.df[variable_items[:6]].transform(np.vectorize(lambda x:x-1))
@@ -319,12 +318,12 @@ class Cleaner(object):
 
                     self.df[variable_items] = self.df[variable_items].fillna(0)
 
-        
+
             except KeyError:
                 continue
 
     def _clean_rss(self, var):
-        
+
         variable_items = self.items[var]
 
         self.df[variable_items] = self.df[variable_items].fillna(-1)
@@ -370,16 +369,16 @@ class Cleaner(object):
 
         for i, Q in enumerate(Qs):
             ind = np.copy(idx)
-            
+
             # Removing all participants that have NaN in all three items. The remaining NaN values are changed to 0
-            ind = np.delete(ind, all_nans[i]) 
-            
+            ind = np.delete(ind, all_nans[i])
+
             for j in Q:
                 self.df[j].iloc[ind] = self.df[j].iloc[ind].fillna(0)
 
     def _clean_ALE(self, var):
         """
-        All of the items that asks for other events have a higher percentage of NaN-values. 
+        All of the items that asks for other events have a higher percentage of NaN-values.
         Since it is a binary variable we interpret the NaN-values as "no". So the function changes
         NaN to 'no' for the selected columns
         """
@@ -413,12 +412,12 @@ class Cleaner(object):
         self.df["CC914"] = self.df["CC914"].transform(np.vectorize(lambda x: x-1))
         self.df[["CC911", "CC912", "CC913", "CC915"]] = self.df[["CC911", "CC912", "CC913", "CC915"]].fillna(-1)
         self.df[variable_items[7:]] = self.df[variable_items[7:]].fillna(0)
-    
+
     def _clean_workQ6(self, var):
 
         variable_items = self.items[var]
 
-        self._set_values_nan(var, variable_items[0], extremum="min", ext_val=1)           
+        self._set_values_nan(var, variable_items[0], extremum="min", ext_val=1)
         self._set_values_nan(var, variable_items[0], extremum="max", ext_val=2)
 
         self.df[variable_items[0]] = self.df[variable_items[0]].transform(np.vectorize(lambda x: x-1))
@@ -450,7 +449,7 @@ class Cleaner(object):
             self.df.loc[idx, col] = 100
 
     def _clean_drugs(self, var):
-        
+
         for Q in self.Q_names:
             try:
                 variable_items = self.variables[Q][var]
@@ -461,10 +460,10 @@ class Cleaner(object):
                     # for i in range(0, len(variable_items)-1, 3):
                     #     self.df[variable_items[i+1]] = self.df[variable_items[i+1]].fillna(0)
                     #     self.df[variable_items[i+2]] = self.df[variable_items[i+2]].fillna(0)
-        
+
             except KeyError:
                 continue
-    
+
     def _clean_alcohol(self, var):
 
         for Q in self.Q_names:
@@ -472,17 +471,17 @@ class Cleaner(object):
                 variable_items = self.variables[Q][var]
                 if Q == "Q3":
 
-                    self._set_values_nan(var, variable_items[:4], extremum="min", ext_val=1)           
+                    self._set_values_nan(var, variable_items[:4], extremum="min", ext_val=1)
                     self._set_values_nan(var, variable_items[:4], extremum="max", ext_val=7)
-                   
-                    self._set_values_nan(var, variable_items[4:8], extremum="min", ext_val=1)           
+
+                    self._set_values_nan(var, variable_items[4:8], extremum="min", ext_val=1)
                     self._set_values_nan(var, variable_items[4:8], extremum="max", ext_val=5)
-                    
+
                     self._set_values_nan(var, variable_items[8:12], extremum="min", ext_val=1)
                     self._set_values_nan(var, variable_items[8:12], extremum="max", ext_val=6)
 
                     self.df[variable_items[8:12]] = self.df[variable_items[8:12]].fillna(7)
-                    
+
                     self._set_values_nan(var, variable_items[12:17], extremum="min", ext_val=1)
                     self._set_values_nan(var, variable_items[12:17], extremum="max", ext_val=2)
 
@@ -490,25 +489,25 @@ class Cleaner(object):
                     self.df[variable_items[12:17]] = self.df[variable_items[12:17]].fillna(0)
 
                 elif Q == "Q4":
-                    self._set_values_nan(var, variable_items[:3], extremum="min", ext_val=1)           
+                    self._set_values_nan(var, variable_items[:3], extremum="min", ext_val=1)
                     self._set_values_nan(var, variable_items[:3], extremum="max", ext_val=7)
 
-                    self._set_values_nan(var, variable_items[3:], extremum="min", ext_val=1)           
+                    self._set_values_nan(var, variable_items[3:], extremum="min", ext_val=1)
                     self._set_values_nan(var, variable_items[3:], extremum="max", ext_val=6)
 
                     self.df[variable_items[3:]] = self.df[variable_items[3:]].fillna(7)
 
-        
+
             except KeyError:
                 continue
 
-        
+
     def _clean_adverselifeevents(self, var):
-         
+
         for Q in self.Q_names:
             try:
                 variable_items = self.variables[Q]["AdverseLifeEvents"]
-                
+
                 for i in range(0,len(variable_items)-1,2):
 
                     self.df[variable_items[i]] = self.df[variable_items[i]].transform(np.vectorize(lambda x: x-1))
@@ -516,11 +515,11 @@ class Cleaner(object):
 
             except KeyError:
                 continue
-   
+
     def _clean_assaultQ3(self, var):
 
         variable_items = self.items[var]
-      
+
         for i in range(0, len(variable_items)-1, 7):
             item = variable_items[i:i+7]
             self.df[item[:-1]] = self.df[item[:-1]].fillna(0)
@@ -528,7 +527,7 @@ class Cleaner(object):
             self.df[item[-1]] = self.df[item[-1]].fillna(-1)
 
     def _clean_assaultQ6(self, var):
-        
+
         variable_items = self.items[var]
         self.df[variable_items] = self.df[variable_items].transform(np.vectorize(lambda x: x-1))
 
@@ -537,7 +536,7 @@ class Cleaner(object):
         self.df[["DD20", "DD21", "DD28"]] = self.df[["DD20", "DD21", "DD28"]].transform(np.vectorize(lambda x: x-1))
         self.df[["DD17", "DD21", "DD22", "DD23", "DD24", "DD25", "DD26", "DD27"]] = self.df[["DD17", "DD21", "DD22", "DD23", "DD24", "DD25", "DD26", "DD27"]].fillna(-1)
         self.df[["DD39", "DD40", "DD41"]] = self.df[["DD39", "DD40", "DD41"]].fillna(0)
-    
+
     def _clean_childcare(self, var):
 
         variable_items = self.items[var]
@@ -552,7 +551,7 @@ class Cleaner(object):
 
         col = "EE916"
         rows = np.where(self.df.loc[:,col].values < 1)[0]
-        
+
         for row in rows:
             self.df.loc[row,col] = np.nan
 
@@ -577,7 +576,7 @@ class Cleaner(object):
 
     def _clean_parentalleave(self, var):
 
-        self._set_values_nan(var, "EE577", extremum="max", ext_val=24*7)         
+        self._set_values_nan(var, "EE577", extremum="max", ext_val=24*7)
 
         self.df[["EE572", "EE573", "EE574", "EE575", "EE577"]] = self.df[["EE572", "EE573", "EE574", "EE575", "EE577"]].fillna(-1)
 
@@ -586,7 +585,7 @@ class Cleaner(object):
         self.df[["EE578", "EE579", "EE580", "EE581", "EE582"]] = self.df[["EE578", "EE579", "EE580", "EE581", "EE582"]].fillna(-1)
 
     def _clean_smokingQ4(self, var):
-        
+
         variable_items = self.items[var]
 
         for item in variable_items[:-2]:
@@ -595,22 +594,22 @@ class Cleaner(object):
         self.df[variable_items[:-2]] = self.df[variable_items[:-2]].fillna(0)
         self.df[variable_items[-1]] = self.df[variable_items[-1]].fillna(0)
 
-        self._set_values_nan(var, variable_items[-2], extremum="min", ext_val=1)           
+        self._set_values_nan(var, variable_items[-2], extremum="min", ext_val=1)
         self._set_values_nan(var, variable_items[-2], extremum="max", ext_val=4)
 
     def _clean_smokingQ5(self, var):
         self.df[["EE604", "EE606"]] = self.df[["EE604", "EE606"]].fillna(-1)
         self.df["EE609"] = self.df["EE609"].fillna(7)
-   
+
     def _clean_smokingQ6(self, var):
-        
+
         variable_items = self.items[var]
 
-        self._set_values_nan(var, variable_items[0], extremum="min", ext_val=1)           
+        self._set_values_nan(var, variable_items[0], extremum="min", ext_val=1)
         self._set_values_nan(var, variable_items[0], extremum="max", ext_val=3)
 
         self.df[variable_items[1:]] = self.df[variable_items[1:]].fillna(0)
-   
+
     def _clean_childlengthweight(self, var):
 
         for Q in self.Q_names:
@@ -624,7 +623,7 @@ class Cleaner(object):
 
 
                 elif Q == "Q6":
-                    
+
                     remove_cols = ["Q6_AGE_3_Y", "Q6_AGE_2_Y", "Q6_AGE_18_M", "GG664", "GG665", "GG666"]
                     self.df.drop(columns=remove_cols, inplace=True)
 
@@ -640,30 +639,30 @@ class Cleaner(object):
                     for col in variable_items:
 
                         rows = np.where(self.df.loc[:,col].values < 1)[0]
-                    
+
                         for row in rows:
                             self.df.loc[row,col] = np.nan
 
                     for col in variable_items:
 
                         rows = np.where(self.df.loc[:,col].values > 3)[0]
-                    
+
                         for row in rows:
                             self.df.loc[row,col] = np.nan
-                
+
                 elif Q == "Q6":
                     rows = np.where(self.df.loc[:,variable_items[0]].values < 1)[0]
                     print(len(rows))
                     for row in rows:
                         self.df.loc[row,variable_items[0]] = np.nan
-                    
+
                     rows = np.where(self.df.loc[:,variable_items[0]].values > 6)[0]
                     print(len(rows))
                     for row in rows:
                         self.df.loc[row,variable_items[0]] = np.nan
-                        
+
                     for col in variable_items[1:]:
-                        
+
                         rows = np.where(self.df.loc[:,col].values > 3)[0]
                         print(len(rows))
                         for row in rows:
@@ -684,9 +683,9 @@ class Cleaner(object):
             try:
 
                 variable_items = self.variables[Q][var]
-                
+
                 if Q == "Q5":
-                
+
                     for var in variable_items:
                         try:
                             self.df.drop(columns=[var], inplace=True)
@@ -695,7 +694,7 @@ class Cleaner(object):
 
                 elif Q == "Q6":
                     col = "GG252"
-                    
+
                     try:
                         self.df.drop(columns=[col], inplace=True)
                     except KeyError:
@@ -703,11 +702,11 @@ class Cleaner(object):
 
                     variable_items.remove(col)
 
-                    self._set_values_nan(var, variable_items, extremum="min", ext_val=1)           
+                    self._set_values_nan(var, variable_items, extremum="min", ext_val=1)
                     self._set_values_nan(var, variable_items, extremum="max", ext_val=2)
 
                     self.df[variable_items] = self.df[variable_items].transform(np.vectorize(lambda x:x-1))
-               
+
 
 
             except KeyError:
@@ -725,16 +724,16 @@ class Cleaner(object):
 
 
                 elif Q == "Q6":
-                    
-                    self.df[variable_items[:-1]] = self.df[variable_items[:-1]].fillna(-1) 
+
+                    self.df[variable_items[:-1]] = self.df[variable_items[:-1]].fillna(-1)
 
 
             except KeyError:
                 continue
 
     def _clean_livingwithfather(self, var):
-        
-        
+
+
         for Q in self.Q_names:
             try:
                 variable_items = self.variables[Q][var]
@@ -744,21 +743,21 @@ class Cleaner(object):
                     min_val = [1,1]
                     max_val = [2,5]
                     for i, col in enumerate(variable_items):
-                        self._set_values_nan(var, col, extremum="min", ext_val=min_val[i])           
-                        self._set_values_nan(var, col, extremum="max", ext_val=max_val[i])           
-               
+                        self._set_values_nan(var, col, extremum="min", ext_val=min_val[i])
+                        self._set_values_nan(var, col, extremum="max", ext_val=max_val[i])
+
                     self.df[variable_items[0]] = self.df[variable_items[0]].transform(np.vectorize(lambda x:x-1))
                     self.df[variable_items[-1]] = self.df[variable_items[-1]].fillna(-1)
 
 
                 elif Q == "Q6":
-                    
+
                     min_val = [1,1,1]
                     max_val = [2,6,6]
                     for i, col in enumerate(variable_items):
-                        self._set_values_nan(var, col, extremum="min", ext_val=min_val[i])           
-                        self._set_values_nan(var, col, extremum="max", ext_val=max_val[i])           
-               
+                        self._set_values_nan(var, col, extremum="min", ext_val=min_val[i])
+                        self._set_values_nan(var, col, extremum="max", ext_val=max_val[i])
+
                     self.df[variable_items[0]] = self.df[variable_items[0]].transform(np.vectorize(lambda x:x-1))
                     self.df[variable_items[1:]] = self.df[variable_items[1:]].fillna(-1)
 
@@ -766,8 +765,8 @@ class Cleaner(object):
                 continue
 
     def _clean_timeoutside(self, var):
-        
-        
+
+
         for Q in self.Q_names:
             try:
                 variable_items = self.variables[Q][var]
@@ -777,21 +776,21 @@ class Cleaner(object):
                     min_val = [1,1,1,0]
                     max_val = [4,5,2,999]
                     for i, col in enumerate(variable_items):
-                        self._set_values_nan(var, col, extremum="min", ext_val=min_val[i])           
-                        self._set_values_nan(var, col, extremum="max", ext_val=max_val[i])           
-               
+                        self._set_values_nan(var, col, extremum="min", ext_val=min_val[i])
+                        self._set_values_nan(var, col, extremum="max", ext_val=max_val[i])
+
                     self.df[variable_items[2]] = self.df[variable_items[2]].transform(np.vectorize(lambda x:x-1))
                     self.df[variable_items[3]] = self.df[variable_items[3]].fillna(-1)
 
 
                 elif Q == "Q6":
-                    
+
                     min_val = [1,1]
                     max_val = [4,5]
                     for i, col in enumerate(variable_items):
-                        self._set_values_nan(var, col, extremum="min", ext_val=min_val[i])           
-                        self._set_values_nan(var, col, extremum="max", ext_val=max_val[i])           
-         
+                        self._set_values_nan(var, col, extremum="min", ext_val=min_val[i])
+                        self._set_values_nan(var, col, extremum="max", ext_val=max_val[i])
+
 
 
 
@@ -802,7 +801,7 @@ class Cleaner(object):
 
         variable_items = self.items[var]
 
-        self._set_values_nan(var, variable_items[0], extremum="min", ext_val=1)           
+        self._set_values_nan(var, variable_items[0], extremum="min", ext_val=1)
         self._set_values_nan(var, variable_items[0], extremum="max", ext_val=2)
 
         self.df[variable_items[0]] = self.df[variable_items[0]].transform(np.vectorize(lambda x:x-1))
@@ -845,7 +844,7 @@ class Cleaner(object):
 
         tot_rows_nan = rows_with_nan / self.df.shape[0] * 100
 
-        percent_nan_col = (self.df.isna().sum(axis=0)/self.df.shape[0] * 100) 
+        percent_nan_col = (self.df.isna().sum(axis=0)/self.df.shape[0] * 100)
 
         data = [
             ["Total values changed to NaN:", self.total_count],
@@ -863,7 +862,7 @@ class Cleaner(object):
                 print("{:.<55s}{:.2f}\n".format(data[i][0], data[i][1]))
 
 
-        
+
         print("Columns with more than 10% of values being NaN:")
 
         # Check if any columns has more than 10% of NaN-values
@@ -875,15 +874,15 @@ class Cleaner(object):
         if not label:
             print("No columns with more than 10% of NaN-values")
         print("-"*80, end="\n")
-    
-        
+
+
 
 if __name__ == '__main__':
 
 
     # with open("./../data/variables.hjson", "r") as f:
     #     variables = hjson.load(f)
-    
+
     with open("./../data/all_variables.json", "r") as f:
         variables = json.load(f)
 
@@ -905,8 +904,8 @@ if __name__ == '__main__':
     # ]
 
     variable_keys = ["PregnantNow"]
-        
-        
+
+
     Q_names = ['Q1', 'Q3', 'Q4', 'Q5', 'Q6']
 
 
@@ -942,6 +941,6 @@ if __name__ == '__main__':
     #             print(df[items].isna().sum() / (df.shape[0]) *100)
     #     except KeyError:
     #         continue
-    
+
     # pdb.set_trace()
     # cleaner.df.to_csv(data_path + df_name, index=False)

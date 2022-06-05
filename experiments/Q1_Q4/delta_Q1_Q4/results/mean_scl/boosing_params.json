@@ -1,9 +1,0 @@
-{
-    "max_depth": 2,
-    "min_child_weight": 9,
-    "eta": 0.2,
-    "subsample": 0.6,
-    "colsample_bytree": 0.4,
-    "objective": "reg:squarederror",
-    "eval_metric": "rmse"
-}

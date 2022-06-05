@@ -1,5 +1,0 @@
-{
-	"activation": "relu", 
-	"hidden_layer_sizes": (40, 10, 100)
-}
-

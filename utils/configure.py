@@ -11,58 +11,47 @@ import pdb
 
 def get_args():
     argparser = argparse.ArgumentParser(description="")
-    
+
     argparser.add_argument(
-        "-qs", "-Qs",
+        "-qs",
         type=str,
         nargs="+",
         default=["Q1", "Q3", "Q4", "Q5", "Q6"],
         choices= ["q1","Q1","q3","Q3", "q4","Q4","q5","Q5","q6","Q6"],
-        help="A neural net is trained for each questionnaire specified."
+        help="A model is trained for each questionnaire specified."
              "The questionnaires also specify where the input- and output data is retrived and  stored."
     )
 
     argparser.add_argument(
-        "-t", "--target",
+        "-e",
         type=str,
         nargs="?",
-        choices= ["sum", "mean"],
-        default="mean",
-        help="Target preprocessing procedure"
-    )
-
-    argparser.add_argument(
-        "-e", "--experiment",
-        type=str,
-        nargs="?",
-        choices= ["wide_format", "pca", "wide_pca",
+        choices= ["wide_format", "wide_pca",
                  "wide_aggregated", "wide_item", "single"],
         required=True,
-        help="Experiment type, defines how the variables in the data are treated."
+        help="Specifies experiment type, i.e., which dataset to use as training and test sets."
     )
 
     argparser.add_argument(
-        "-m", "--mode",
+        "-m",
         type=str,
         nargs="?",
-        choices=["tune", "train", "train_eval", "eval", "plot"],
+        choices=["tune", "train", "train_eval", "eval"],
         default="train",
-        help="If tune, the network architecture is tuned on the dataset from the first questionnaire."
-        "If train, a config.json file should be in the model_path to be loaded in, and a network is trained for each questionnaire."
+        help="If tune, the models hyperparameters are tuned. If train, a config_UNIQUE-ID.json file should be in the model_path to be loaded in, and the model is then trained."
     )
 
     argparser.add_argument(
-        "-c", "--config",
+        "-c",
         type=str,
         nargs="?",
         default=None,
-        help="Name of config file if network is already tuned."
-             "If a config name is passed when mode=tune, config name is set to None."
-             "Accept partial name of config, as long as the partial name is unique for the config file in the config directory."
+        help="Name of config file if model is already tuned. If a config name is passed when mode=tune, config name is set to None. Accept partial name of config, as long as the partial name is unique for the config file in the config directory."
     )
 
+
     argparser.add_argument(
-        "-corr", "--correlation",
+        "-corr",
         type=str,
         nargs="?",
         choices=["true", "false", "True", "False", "t", "f"],
@@ -71,9 +60,9 @@ def get_args():
     )
 
 
-   
+
     args = argparser.parse_args()
-    
+
     return args
 
 
@@ -82,12 +71,12 @@ class Configure(object):
     """
 
     Args:
-        args: argparse object 
+        args: argparse object
         algortihm: str,  supervised learning algorithm [linear_regression, elastic_net, neural_net]
     """
 
     def __init__(self, args, algorithm):
-        
+
         self.args = args
         self.algorithm = algorithm
 
@@ -102,7 +91,7 @@ class Configure(object):
 
     def _set_up(self):
         """
-        Function to set up all the necessary variables for all the different 
+        Function to set up all the necessary variables for all the different
         experiments. These variables are needed regardless of experiment type.
         """
         args = self.args
@@ -123,7 +112,7 @@ class Configure(object):
 
         # Root directory for current experiment
         self.root = f"./experiments/{self.Q_list}/{self.experiment}_analysis"
-        
+
         if args.config is not None:
 
             self.config_path = os.path.join(self.root, self.algorithm, "configs")
@@ -145,11 +134,11 @@ class Configure(object):
         # Specify columns to remove when preparing train and test data
 
         self.remove_cols = ["PREG_ID_2601"]
-        
+
         if "pca" in self.experiment:
-            self.PCA = True    
+            self.PCA = True
         else:
-            self.PCA = False    
+            self.PCA = False
 
 
         self._check_dir(self.root)
@@ -180,16 +169,16 @@ class Configure(object):
         self.result_path = os.path.join(root, algo, "results")
 
         self._check_dir(self.result_path)
-        
+
         if self.algorithm == "linear_regression" or self.algorithm == "elastic_net":
-            
+
             # Path to regression coefficients
             self.coeff_path = os.path.join(root, algo, "coefficients")
 
             self._check_dir(self.coeff_path)
         else:
 
-            # Path to models 
+            # Path to models
             self.model_path = os.path.join(root, algo, "models")
 
             self._check_dir(self.model_path)
@@ -222,12 +211,12 @@ class Configure(object):
             if "train" in fn:
                 # Loading train dataframe
                 self.train_test_dict["train"] =  pd.read_csv(os.path.join(self.data_path, fn))
-            
+
             elif "test" in fn:
-                
+
                 # Loading test dataframe
                 self.train_test_dict["test"] =  pd.read_csv(os.path.join(self.data_path, fn))
-            
+
     def _get_config(self):
 
 
@@ -235,15 +224,15 @@ class Configure(object):
         counter = 0
         for fn in files:
             if fn.startswith(self.args.config) is True:
-                
+
                 words = re.split("\.|_", fn)
-                
+
                 self.config_name = fn
 
                 self.args.config = self.config_name
 
                 self.unique_id = ".".join(words[1:-1])
-            
+
                 counter +=1
 
         if counter < 1:
@@ -255,7 +244,7 @@ class Configure(object):
 
     def _check_dir(self, directory):
         """
-        Function that checks if a directory exists, and if not creates it. 
+        Function that checks if a directory exists, and if not creates it.
         """
 
         if not os.path.exists(directory):
@@ -264,11 +253,11 @@ class Configure(object):
     def _check_corr(self):
 
         if "wide" in self.experiment:
-            
+
             args = self.args
 
             if args.correlation == "t" or args.correlation == "true" or args.correlation == "True":
-                
+
                 train_df = self.train_test_dict["train"]
                 test_df = self.train_test_dict["test"]
 
@@ -285,5 +274,3 @@ class Configure(object):
                 self.train_test_dict["test"] = test_df
 
                 self.unique_id = self.unique_id + "-high_corr"
-
-

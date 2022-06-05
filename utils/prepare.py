@@ -20,7 +20,7 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 
 class PrepareData(object):
-    """Klasse som preparerer sub_dataframes i wide format, deler inn i test og train, imputerer og evt. preprosesserer
+    """Prepares sub-dataframe in the wide format, splits the data, imputes and preprocess the data.
 
     Args:
         variables: Dict storing variables of interest from the MoBa files for all questionnaires
@@ -31,7 +31,7 @@ class PrepareData(object):
         out_path: Path to store the prepared dataframes
         clean: bool, default True. The data is cleaned w.r.t NaNs. Meaning that all values that are illegal are set to NaN.
         impute: bool, default False. If True, data is imputed.
-        aggregate: bool, default False. If True, variables are aggregated 
+        aggregate: bool, default False. If True, variables are aggregated
         save: bool, deafult True. If True, saves dataframes to out_path
         df_name: If dataframe already exists, loads dataframe from data_path
         split: bool, deafult True. If True, splits dataframe into train and test set
@@ -51,8 +51,8 @@ class PrepareData(object):
         self.save = save
         self.split = split
 
-        
-        # self.prepare = True        
+
+        # self.prepare = True
         self.exists = False
 
         assert isinstance(clean, bool), f"clean argument is not of type bool but {type(impute)}"
@@ -93,10 +93,10 @@ class PrepareData(object):
 
 
         self._check_files()
-    
+
 
         if self.exists is False:
-            
+
             # Load/or construct unpartitioned dataframe
             self.df = load_dataframe(self.dataframe_name, self.data_path)
 
@@ -107,29 +107,29 @@ class PrepareData(object):
                 #######
 
             if split is True:
-            
+
                 print_info("Splitting data \n")
 
 
-                self._split_train_test(self.df) 
+                self._split_train_test(self.df)
 
             else:
                 self.train_test_dict = {"data": {"df": self.df, "outfile_path":  self.out_path + self.dataframe_name}}
 
-            
+
 
             if impute is True:
 
-         
+
                 self._impute()
 
 
             print_info(f"Aggregating scl items into one target, target_processing={self.target_processing} \n")
 
-           
+
             self._aggregate_target()
 
-            
+
             if aggregate is True:
 
 
@@ -145,18 +145,18 @@ class PrepareData(object):
     def _check_files(self):
         """
         Function that checks if a possible set of cleaned, imputed and aggregated dataframes with the variables already exists in self.out_path
-        """   
+        """
 
         clean = self.clean
         impute = self.impute
-        aggregate = self.aggregate 
+        aggregate = self.aggregate
 
 
-        # Dict containing dataframe varaibles and outfile name of the two partitions 
+        # Dict containing dataframe varaibles and outfile name of the two partitions
         self.train_test_dict = {
             "train": {},
             "test": {}
-        } 
+        }
 
         files = os.listdir(self.out_path)
 
@@ -167,7 +167,7 @@ class PrepareData(object):
         key_words.append("imputed") if impute is True else None
         key_words.append("aggregated") if aggregate is True else None
 
-        
+
         for part in partitions.keys():
 
             tmp = key_words.copy()
@@ -179,10 +179,10 @@ class PrepareData(object):
 
 
                 if all(word in fn for word in tmp) is all(key in fn for key in self.variable_keys) is all(Q in fn for Q in self.Q_names) is True:
-                    
+
                     # Verify that the filename does not include any other words than the one in the list below
                     all_words = tmp + self.variable_keys + self.Q_names + ["sub", "dataframe"]
-                    
+
                     # Remove the words that are present in the filename
                     [word_files.remove(w) for w in all_words]
 
@@ -205,7 +205,7 @@ class PrepareData(object):
             print(f"Found an existing file with the key words {key_words.pop(0)}")
 
             if aggregate is True:
-                
+
                 # If loading dataframes, must still identify the unique variables
                 # Dict storing all the aggregated unique variable names
 
@@ -240,14 +240,14 @@ class PrepareData(object):
                         elif isinstance(aggregated_names[var], list):
 
                             self.unique_variables.extend(aggregated_names[var])
-    
+
     def _check_files_exists_OLD(self):
         """
         Function that checks if a possible set of cleaned and imputed dataframes with the variables already exists in self.out_path
 
 
         OLD VERSION
-        """    
+        """
 
         if self.clean is False and self.impute is False:
 
@@ -306,12 +306,12 @@ class PrepareData(object):
             self.outfile_train = self.out_path + self.train_name
             self.outfile_test = self.out_path + self.test_name
 
-            # Dict containing dataframe varaibles and outfile name of the two partitions 
+            # Dict containing dataframe varaibles and outfile name of the two partitions
             self.train_test_dict = {
                 "train": {"df": self.df_train, "outfile_path": self.outfile_train},
                 "test": {"df": self.df_test, "outfile_path": self.outfile_test}
-            } 
-     
+            }
+
     def _update_variables_dict(self):
         """
         Function for updating the variables dictionary hjson file
@@ -359,11 +359,11 @@ class PrepareData(object):
         self.df_train, self.df_test = split_data(df)
 
 
-        # Dict containing dataframe varaibles and outfile name of the two partitions 
+        # Dict containing dataframe varaibles and outfile name of the two partitions
         self.train_test_dict = {
             "train": {"df": self.df_train, "outfile_path": self.outfile_train},
             "test": {"df": self.df_test, "outfile_path": self.outfile_test}
-        } 
+        }
 
     def _aggregate_target(self):
         """
@@ -403,14 +403,14 @@ class PrepareData(object):
             for key in self.train_test_dict:
 
                 if os.path.exists(self.train_test_dict[key]["outfile_path"]) is False:
-                 
+
                     self.train_test_dict[key]["df"].to_csv(self.train_test_dict[key]["outfile_path"], index=False)
         else:
             print(f"Dataframes already exists in {self.out_path}")
 
             save = input("Still save dataframes (y/[n])? ")
             print("")
-            
+
             if save == "y":
                 for key in self.train_test_dict:
 
@@ -423,10 +423,10 @@ class PrepareData(object):
     def _clean_OLD_NOT_WORKING(self):
 
         self.dataframe_name = "cleaned_" + self.dataframe_name
-        
+
         for key in self.train_test_dict.keys():
             print_info("Cleaning data for", end=""); print(f"\x1b[94m {key} \033[0m", end=""); print_info("partition \n")
-            
+
 
             cleaner = Cleaner(self.train_test_dict[key]["df"], self.variable_keys, self.variables, self.Q_names)
             cleaner()
@@ -442,14 +442,14 @@ class PrepareData(object):
         print_info("Cleaning dataframe \n")
 
         self.dataframe_name = "cleaned_" + self.dataframe_name
-        
+
 
         cleaner = Cleaner(self.df, self.variable_keys, self.variables, self.Q_names)
         cleaner()
 
 
         self.df = cleaner.df
- 
+
     def _impute(self):
 
         self.dataframe_name = "imputed_" + self.dataframe_name
@@ -458,7 +458,7 @@ class PrepareData(object):
 
         for key in self.train_test_dict.keys():
             print_info("Imputing missing data for", end=""); print(f"\x1b[94m {key} \033[0m", end=""); print_info("partition \n")
-            
+
             imputer = Imputer(self.train_test_dict[key]["df"])
             imputer()
 
@@ -473,7 +473,7 @@ class PrepareData(object):
         """
 
         self.dataframe_name = "aggregated_" + self.dataframe_name
-        
+
         if self.split is True:
             self.train_name = "aggregated_" + self.train_name
             self.test_name = "aggregated_" + self.test_name
@@ -494,9 +494,9 @@ class PrepareData(object):
             "RSES"    : self._mean_RSES,
             "SWLS"    : self._mean_SWLS,
             "ALE"     : self._adverse_life_events_bin,
-            "birth"   : self._birth_vars 
+            "birth"   : self._birth_vars
         }
-        
+
         t0 = time()
 
         # Aggregating the variables in the train and test partitions separately
@@ -542,7 +542,7 @@ class PrepareData(object):
 
         print("Aggregation compledet in {:.1f} s".format(time() - t0))
 
-    
+
     def _scl_sum(self):
         """Aggregate all of the scl variables into one variable additively.  The original scl variables are then removed from the dataframe inplace"""
 
@@ -569,7 +569,7 @@ class PrepareData(object):
 
                         # Index of new column containing the means
                         new_index = self.df.columns.get_loc(values[-1]) + 1
-                        
+
                         # Inserting new column. Scaling the answer from Q1 since here SCL-5 is used as opposed to SCL-8
                         if Q == "Q1":
                             self.df.insert(
@@ -579,13 +579,13 @@ class PrepareData(object):
                             self.df.insert(
                                 new_index, agg_names[counter], self.df[values].sum(axis=1)
                             )
-                        
-                       
+
+
                         # Removing variable columns
                         self.df.drop(labels=values, axis=1, inplace=True)
 
                         counter += 1
-        
+
         # Updating variables dict
         counter = 0
         for Qs, nested_dict in self.variables.items():
@@ -648,7 +648,7 @@ class PrepareData(object):
         """
         # Identify which questonnaires are represented in the columns
         Qs_present = [q.split("_")[-1] for q in new_names]
-  
+
         # Counts how many columns parsed
         counter = 0
 
@@ -748,11 +748,11 @@ class PrepareData(object):
         """
 
         print("Calculating means for the RSS variables in each questionnaire")
-    
+
 
         # Column names for the mean variable
         mean_names = ["mean_RSS_{}".format(i) for i in self.Q_names]
-       
+
         # Calculating and adding the means
         self._get_mean_columns(mean_names)
 
@@ -774,7 +774,7 @@ class PrepareData(object):
         print(
             "Transforming variable concerning social support into dichotomous variable"
         )
-        
+
         # Column name of the binary variable
         binary_variable = "ss_bin"
 
@@ -807,7 +807,7 @@ class PrepareData(object):
         """
 
         print("Transforming variables concerning education into dichotomous variable")
-    
+
         # Column name of the binary variable
         binary_variable = "edu_bin"
 
@@ -842,7 +842,7 @@ class PrepareData(object):
         """To determine immigration status a variable concerning mother tounge language is used. This variable is either coded 1 or 2, 1 for Norwegian as native language, 2 for others. The functions changes the coding from 1/2 --> 0/1"""
 
         print("Transforming variables concerning immigration status")
-    
+
         # Key to the language question in self.variables
         immigration_key = self.variables["Q1"][self.variable_key]
 
@@ -871,7 +871,7 @@ class PrepareData(object):
         """
 
         print("Transforming variables concerning abuse into dichotomous variable")
-       
+
         # Column name of the new binary variable
         binary_variable = "abuse_bin"
 
@@ -935,7 +935,7 @@ class PrepareData(object):
         """Function that verifies that the income variables have legal values, i. e. for first question no value is < 8, and for the second no value is < 9."""
 
         print("Verifying income variables")
-    
+
 
         # Key to the income questions in self.variables
         income_key = self.variables["Q1"][self.variable_key]
@@ -1070,7 +1070,7 @@ class PrepareData(object):
 
         # Column names for the mean variable
         mean_names = ["mean_SWLS_{}".format(i) for i in self.Q_names]
-        
+
         # Calculating and adding the means
         self._get_mean_columns(mean_names)
 
@@ -1100,7 +1100,7 @@ class PrepareData(object):
         # if "Q1" in self.Q_names:
         #     self.df["ALE_bin_Q1"] = 0
         #     self.variables["Q1"]["ALE_bin_Q1"] = "ALE_bin_Q1"
-        
+
         for i, Q in enumerate(self.Q_names):
             if self.variable_key in self.variables[Q].keys():
 

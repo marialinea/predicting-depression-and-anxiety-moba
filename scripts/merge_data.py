@@ -35,7 +35,7 @@ extension = "csv"
 Q_names = [Q.replace("_", "") for Q in Qs]
 
 # Experiment folder, i. e. different combinations of questionnaires are one experiment and thus have their own folder
-exp_folder = "./experiments/" + "_".join(Q_names)
+exp_folder = "../experiments/" + "_".join(Q_names)
 
 # Extension of outputfile
 out_extension = ".csv"
@@ -99,7 +99,7 @@ t0 = time()
 preg_id_filename = "preg_ids_" + "_".join(Q_names) + ".npy"
 
 # Relative path to id folder
-id_path = "./data/ids" 
+id_path = "./data/ids"
 
 
 # Relative path and filename to the pregnancy id file

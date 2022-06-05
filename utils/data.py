@@ -76,7 +76,7 @@ def get_selected_columns(df, variables, variable_keys, questionnaires):
 
                 # Extracting the columns of interest
                 if key in variable_keys:
-                    
+
                     try:
                         new_df[values] = df[values]
 
@@ -121,7 +121,7 @@ def split_data(df, fraction_train=0.8):
 
 def prepare_folds(train_df, test_df, target_col, remove_cols=None, validation=True, remove_nan=False):
     """Function that prepares the dataframes into train, validation and test folds.
-    
+
     The function splits the training data into train and validation folds with a 80/20 ratio. The target column is removed from both
     dataframes and placed in a separate variable.
 
@@ -136,7 +136,7 @@ def prepare_folds(train_df, test_df, target_col, remove_cols=None, validation=Tr
     Returns:
         if validatione = True:
             X_train, X_val, X_test, y_train, y_val, y_test: Numpy ndarray, with X being the design matrices and y being the targets
-        else: 
+        else:
             X_train, X_test, y_train, y_test
 
     """
@@ -166,7 +166,7 @@ def prepare_folds(train_df, test_df, target_col, remove_cols=None, validation=Tr
     # Remove unwanted columns
     X_train.drop(columns=remove_cols, inplace=True)
     X_test.drop(columns=remove_cols, inplace=True)
-    
+
 
     if validation:
         X_train, X_val, y_train, y_val = train_test_split(
@@ -179,7 +179,7 @@ def prepare_folds(train_df, test_df, target_col, remove_cols=None, validation=Tr
         return X_train, X_test, y_train, y_test
 
 
-def paired_ttest_5x2cv(estimator1, estimator2, 
+def paired_ttest_5x2cv(estimator1, estimator2,
                        fit_params1, fit_params2,
                        X, y,
                        scoring=None,
@@ -187,7 +187,9 @@ def paired_ttest_5x2cv(estimator1, estimator2,
     """
     Implements the 5x2cv paired t test proposed
     by Dieterrich (1998)
-    to compare the performance of two models.
+    to compare the performance of two models. The function is adapted from
+    the one found in http://rasbt.github.io/mlxtend/user_guide/evaluate/paired_ttest_5x2cv/
+
     Parameters
     ----------
     estimator1 : scikit-learn classifier or regressor
@@ -220,10 +222,8 @@ def paired_ttest_5x2cv(estimator1, estimator2,
         than the p-value, we reject the null hypothesis
         and accept that there are significant differences
         in the two compared models.
-    Examples
-    -----------
-    For usage examples, please see
-    http://rasbt.github.io/mlxtend/user_guide/evaluate/paired_ttest_5x2cv/
+
+
     """
     rng = np.random.RandomState(random_seed)
 
@@ -249,7 +249,7 @@ def paired_ttest_5x2cv(estimator1, estimator2,
             estimator1.fit(X_1, y_1)
         else:
             estimator1.fit(X_1, y_1, **fit_params1)
-        
+
         if fit_params2 is None:
             estimator2.fit(X_1, y_1)
         else:

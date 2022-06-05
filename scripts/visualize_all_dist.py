@@ -16,14 +16,12 @@ Qs = ["Q4", "Q5", "Q6"]
 
 Q_names = "_".join(Qs)
 
-
-
 # Name of dataframe file containing true targets
 test_df_name = "test_imputed_cleaned_dataframe_Q1_Q3_{Q}.csv"
 train_df_name = "train_imputed_cleaned_dataframe_Q1_Q3_{Q}.csv"
 
 # Target preprocessing
-target_preprocessing = "mean"  
+target_preprocessing = "mean"
 
 # Target column
 target_col = f"{target_preprocessing}_scl"
@@ -75,16 +73,16 @@ for dataset, preds in all_preds.items():
     if dataset == "corr":
         dataset = "format"
     predictions[dataset] = {}
-    
+
     for i, Q in enumerate(Qs):
 
         predictions[dataset][Q] = {}
 
         for method in methods:
-            
+
             if isinstance(preds[method], list) is True:
                 path = os.path.join(f"../experiments/Q1_Q3_{Q}/wide_{dataset}_analysis/{method}/results/{preds[method][i]}")
-            else: 
+            else:
                 path = os.path.join(f"../experiments/Q1_Q3_{Q}/wide_{dataset}_analysis/{method}/results/{preds[method]}")
 
             predictions[dataset][Q][method] = np.load(path)
@@ -93,7 +91,7 @@ for dataset, preds in all_preds.items():
 
 
 fig, ax = plt.subplots(nrows=4, ncols=3, sharey=True, sharex = True, figsize=(12,9))
- 
+
 cmap = plt.cm.get_cmap("jet")
 
 ax_dict = {
@@ -129,21 +127,21 @@ for i, (dataset, preds) in enumerate(predictions.items()):
         for k, Q in enumerate(Qs):
 
             if method == "linear_regression":
-                ax_dict[method][Q].set_title(f"{Q}", fontsize=FONTSIZE) 
-                
-            
+                ax_dict[method][Q].set_title(f"{Q}", fontsize=FONTSIZE)
+
+
             sns.histplot(preds[Q][method][:,1], label="True Targets", fill=True, color="k",alpha=0.05,binwidth=0.125, ax=ax_dict[method][Q])
             sns.histplot(preds[Q][method][:,0], label=legend_dict[dataset], fill=True, color=cmap(colors[i]), binwidth=0.125, alpha=0.5, ax=ax_dict[method][Q])
-            
+
             # sns.kdeplot(preds[Q][method][:,1], label="True",fill=False, alpha=0.5,color="k", ax=ax_dict[method][Q])
             # sns.kdeplot(preds[Q][method][:,0], label=legend_dict[dataset],fill=False, alpha=0.5,color=cmap(colors[i]), ax=ax_dict[method][Q])
-           
+
             ax_dict[method][Q].set_xlabel("")
             if k%3 == 0:
                 ax_dict[method][Q].set_ylabel(f"{label_dict[method]}")
             else:
                 ax_dict[method][Q].set_ylabel("")
-        
+
 
 
 lines, labels = ax[2,2].get_legend_handles_labels()

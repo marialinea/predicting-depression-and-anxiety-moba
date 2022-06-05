@@ -27,3 +27,17 @@ Makes  a sub-dataframe only containing specified variables, run `get_sub_datafra
 The script excludes women that have more than one pregnancy registered in the dataset, by identifying the corresponding mother ids. The mother ids are saved in a binary numpy file and stored in `./data/ids/`.
 
 The dataframe is split into a train and test partition, and gives you the choice to make sure all NaNs are correctly encoded, referred to as cleaning, and to impute the data.
+
+
+## get_single_items.py
+-----------------------------------------------------
+The scripts separates the items in a dataframe containing item level data from
+several questionnaires into constant items and time varying items. The constant items
+are then placed into the dataframes for all of the questionnaires, while the time
+dependent items are only placed in the dataframe corresponding to their time point (questionnaire).
+
+
+
+## visualize_XXXXXXXX.py
+------------------------------------------------------
+All of the scripts that begin with `visualize` visualizes results. 

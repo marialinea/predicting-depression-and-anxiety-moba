@@ -6,10 +6,11 @@ from itertools import chain
 import pdb
 
 
-filename = "all_variables.json"
+filename = "selected_variables.hjson"
 
 with open(filename, "r") as f:
     variables = json.load(f)
+
 
 varQ1 = variables["Q1"]
 varQ3 = variables["Q3"]

@@ -2,15 +2,15 @@ import numpy as np
 import pandas as pd
 import os
 import sys
-import hjson
+import json
 import pdb
 
 from utils.dataframe import load_dataframe
 
 
 # Read dict that holds variables of interest
-with open("./data/variables.hjson", "r") as f:
-    variables = hjson.load(f)
+with open("../data/selected_variables.json", "r") as f:
+    variables = json.load(f)
 
 # Keys to the variables that are in the sub dataframe
 variable_keys = [
